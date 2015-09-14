@@ -28,8 +28,8 @@ def getListingsData(data):
 	links = []
 
 	# These flags determine the listing search criteria
-	flags = ['game boy','nintendo','snes','64','gba','gameboy','metroid','mario','pokemon']
-	exclude = ['looking for']
+	flags = ['ford','honda']
+	exclude = ['toyota','chrysler']
 	
 	# We only add every second item from the data to our dataset. The odd items are blank
 	i = 1
