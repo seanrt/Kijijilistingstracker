@@ -53,8 +53,8 @@ def getListingsData(data):
 
 def getNewListings(listings):
 	# Check if the dump is present. If so, open the old listings to compare with the new listings
-	if os.path.isfile('/sdcard/kijijiscraper/data.dump'):
-		with open('/sdcard/kijijiscraper/data.dump', "rb") as input:
+	if os.path.isfile('data.dump'):
+		with open('data.dump', "rb") as input:
 			oldlistings = pickle.load(input) # protocol version is auto detected
 
 		# Find the new listings
@@ -65,14 +65,14 @@ def getNewListings(listings):
 		newlistings = [x for x in listings.titles]
 		
 	# Output the current listings to the data dump
-	with open("/sdcard/kijijiscraper/data.dump", "wb") as output:
+	with open("data.dump", "wb") as output:
 		pickle.dump(listings, output, pickle.HIGHEST_PROTOCOL)
 	
 	return newlistings
 	
 def outputListingsData(listings):
 	# This function opens a text file, outputs all the listings data and then opens the file in Notepad
-	text_file = open("/sdcard/kijijiscraper/Output.txt", "w")
+	text_file = open("Output.txt", "w")
 	text_file.write('There are '+str(listings.size)+' listings that match the search criteria.\n\n')
 	for i in range(0,listings.size):
 		text_file.write('----------------------------------------------------------------'+'\n')
@@ -94,5 +94,6 @@ def main():
 	if len(newlistings) > 0: # If there are new listings, we output the titles
 		for listing in newlistings:
 			print(listing)
-
+		webbrowser.open("Output.txt")
+		
 main()
