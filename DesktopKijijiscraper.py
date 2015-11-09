@@ -29,7 +29,7 @@ def getListingsData(data):
 
 	# These flags determine the listing search criteria
 	flags = ['game boy','nintendo','snes','64','gba','gameboy','metroid','mario','pokemon']
-	exclude = ['looking for']
+	exclude = ['looking for', 'want to buy', 'broken']
 	
 	# We only add every second item from the data to our dataset. The odd items are blank
 	i = 1

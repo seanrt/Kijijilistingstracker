@@ -1,9 +1,12 @@
 import sys
+import time
 import pickle
 import webbrowser
 import requests
 import os.path
 from bs4 import BeautifulSoup
+import sl4a
+droid = sl4a.Android()
 
 class Listings:
 	# This class has 4 instance variables containing info on the listings
@@ -12,14 +15,17 @@ class Listings:
 		self.prices = prices
 		self.links = links
 		self.size = size
-	
+
+	def getTitle():
+		return self.titles
+
 def getWebsiteData():
 	# This function uses requests and beautifulsoup to return the html data containing all the listings for the old video games Ottawa kijiji page
 	r = requests.get('http://m.kijiji.ca/old-video-games/ottawa/f?categoryId=623&locationId=1700185')
 	soup = BeautifulSoup(r.text, 'html.parser', from_encoding='utf8')
 	data = soup.body.div.div.div.div.div.find_next_sibling().find_next_sibling().find_next_sibling().div.ul.find_next_sibling().find_next_sibling().find_next_sibling().find_next_sibling()
 	return data
-	
+
 def getListingsData(data):
 	# Initialize the lists to be used
 	dataset = []
@@ -29,15 +35,15 @@ def getListingsData(data):
 
 	# These flags determine the listing search criteria
 	flags = ['game boy','nintendo','snes','64','gba','gameboy','metroid','mario','pokemon']
-	exclude = ['looking for']
-	
+	exclude = ['looking for','buying','nes','gamecube','wii']
+
 	# We only add every second item from the data to our dataset. The odd items are blank
 	i = 1
 	for item in data:
 		if i%2 == 0:
 			dataset.append(item.contents[1])
 		i = i + 1
-	
+
 	# Each listing has a title, price, and link. If the title matches the search criteria, the listing is added to our list of listings
 	for item in dataset:
 		title = item.div.find_next_sibling().find_next_sibling().div.find_next_sibling().text
@@ -46,7 +52,7 @@ def getListingsData(data):
 			prices.append(item.div.find_next_sibling().find_next_sibling().div.text[1:][:-7])
 			links.append(item['href'])
 	size = len(titles)
-	
+
 	# We create an instance of the Listings class for the listings and return it
 	listings = Listings(titles,prices,links,size)
 	return listings
@@ -63,13 +69,13 @@ def getNewListings(listings):
 	else:
 		# If there's no dump, the listings are the new listings
 		newlistings = [x for x in listings.titles]
-		
+
 	# Output the current listings to the data dump
 	with open("/sdcard/kijijiscraper/data.dump", "wb") as output:
 		pickle.dump(listings, output, pickle.HIGHEST_PROTOCOL)
-	
+
 	return newlistings
-	
+
 def outputListingsData(listings):
 	# This function opens a text file, outputs all the listings data and then opens the file in Notepad
 	text_file = open("/sdcard/kijijiscraper/Output.txt", "w")
@@ -88,11 +94,18 @@ def main():
 	newlistings = getNewListings(listings)
 	outputListingsData(listings)
 	if len(newlistings) != 1:
+		droid.makeToast('There are '+str(len(newlistings))+' new listings.')
 		print('There are '+str(len(newlistings))+' new listings.')
 	else:
-		print('There is '+str(len(newlistings))+' new listing.')
+		droid.makeToast('There is '+str(len(newlistings))+' new listing.')
+		print('There is '+str(len(newlistings))+' new listing.') # Here len(newlistings) = 1
 	if len(newlistings) > 0: # If there are new listings, we output the titles
 		for listing in newlistings:
 			print(listing)
+			droid.makeToast(listing)
+	#droid.notify('title', 'message')
 
-main()
+sleepminutes = 30
+while(True):
+	main()
+	time.sleep(sleepminutes*60)
